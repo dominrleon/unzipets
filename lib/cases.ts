@@ -1,5 +1,23 @@
 import { prisma } from '@/lib/prisma';
 
+export async function getAdminCaseList() {
+  return prisma.case.findMany({
+    include: {
+      plush: true,
+      startNode: true,
+      _count: {
+        select: {
+          nodes: true,
+          scans: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
+
 export async function getPublishedCaseBySlug(slug: string) {
   return prisma.case.findFirst({
     where: {
