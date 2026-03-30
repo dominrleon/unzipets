@@ -4,88 +4,153 @@ import { PrismaClient, CaseStatus, NodeType } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'change-me';
-  const passwordHash = await bcrypt.hash(adminPassword, 10);
+  await prisma.scanLog.deleteMany();
+  await prisma.decisionAnswer.deleteMany();
+  await prisma.decisionNode.deleteMany();
+  await prisma.case.deleteMany();
+  await prisma.plush.deleteMany();
+  await prisma.adminUser.deleteMany();
 
-  await prisma.adminUser.upsert({
-    where: { email: adminEmail },
-    update: { passwordHash },
-    create: { email: adminEmail, passwordHash },
-  });
+  const password = await bcrypt.hash('admin123', 10);
 
-  const plush = await prisma.plush.upsert({
-    where: { slug: 'flash' },
-    update: {},
-    create: {
-      name: 'Flash',
-      slug: 'flash',
-      description: 'Demo plush for the investigation flow.',
+  await prisma.adminUser.create({
+    data: {
+      email: 'admin@unzipets.com',
+      password,
     },
   });
 
-  const existingCase = await prisma.case.findUnique({ where: { slug: 'flash' } });
-  if (existingCase) {
-    return;
-  }
+  const plush = await prisma.plush.create({
+    data: {
+      name: 'Flash',
+      slug: 'flash',
+      isActive: true,
+    },
+  });
 
   const createdCase = await prisma.case.create({
     data: {
       plushId: plush.id,
-      locale: 'en',
-      title: 'Flash Investigation',
+      title: 'Who did it to Flash?',
       slug: 'flash',
+      language: 'en',
       status: CaseStatus.PUBLISHED,
-      introTitle: 'Police Case',
-      introText: 'Investigate the cause of death and discover the truth.',
     },
   });
 
-  const start = await prisma.decisionNode.create({
+  const q1 = await prisma.decisionNode.create({
     data: {
       caseId: createdCase.id,
       type: NodeType.QUESTION,
       internalKey: 'q1',
-      title: 'Did the plush die by accident?',
-      body: 'Choose the answer that best matches your investigation.',
+      title: 'Question 1',
+      content: 'Where was Flash last seen?',
       sortOrder: 1,
     },
   });
 
-  const finalA = await prisma.decisionNode.create({
+  const q2 = await prisma.decisionNode.create({
     data: {
       caseId: createdCase.id,
-      type: NodeType.FINAL,
-      internalKey: 'f1',
-      title: 'Accident confirmed',
-      body: 'The evidence suggests it was an accident.',
-      videoUrl: 'https://videodelivery.net/demo-1',
-      sortOrder: 100,
+      type: NodeType.QUESTION,
+      internalKey: 'q2',
+      title: 'Question 2',
+      content: 'Who was acting suspiciously?',
+      sortOrder: 2,
     },
   });
 
-  const finalB = await prisma.decisionNode.create({
+  const q3 = await prisma.decisionNode.create({
     data: {
       caseId: createdCase.id,
-      type: NodeType.FINAL,
-      internalKey: 'f2',
-      title: 'Foul play discovered',
-      body: 'The clues point to a suspicious intervention.',
-      videoUrl: 'https://videodelivery.net/demo-2',
-      sortOrder: 101,
+      type: NodeType.QUESTION,
+      internalKey: 'q3',
+      title: 'Question 3',
+      content: 'What clue did you find?',
+      sortOrder: 3,
     },
   });
+
+  const endings = await Promise.all(
+    Array.from({ length: 7 }).map((_, index) =>
+      prisma.decisionNode.create({
+        data: {
+          caseId: createdCase.id,
+          type: NodeType.ENDING,
+          internalKey: `ending_${index + 1}`,
+          title: `Ending ${index + 1}`,
+          content: `This is ending ${index + 1} for Flash.`,
+          videoUrl: `https://example.com/videos/flash-ending-${index + 1}.mp4`,
+          sortOrder: 100 + index,
+        },
+      }),
+    ),
+  );
 
   await prisma.decisionAnswer.createMany({
     data: [
-      { nodeId: start.id, label: 'Yes', nextNodeId: finalA.id, sortOrder: 1 },
-      { nodeId: start.id, label: 'No', nextNodeId: finalB.id, sortOrder: 2 },
+      {
+        nodeId: q1.id,
+        label: 'In the kitchen',
+        nextNodeId: q2.id,
+        sortOrder: 1,
+      },
+      {
+        nodeId: q1.id,
+        label: 'In the garden',
+        nextNodeId: q3.id,
+        sortOrder: 2,
+      },
+      {
+        nodeId: q2.id,
+        label: 'The chef',
+        nextNodeId: endings[0].id,
+        sortOrder: 1,
+      },
+      {
+        nodeId: q2.id,
+        label: 'The butler',
+        nextNodeId: endings[1].id,
+        sortOrder: 2,
+      },
+      {
+        nodeId: q2.id,
+        label: 'Nobody',
+        nextNodeId: endings[2].id,
+        sortOrder: 3,
+      },
+      {
+        nodeId: q3.id,
+        label: 'A red button',
+        nextNodeId: endings[3].id,
+        sortOrder: 1,
+      },
+      {
+        nodeId: q3.id,
+        label: 'A footprint',
+        nextNodeId: endings[4].id,
+        sortOrder: 2,
+      },
+      {
+        nodeId: q3.id,
+        label: 'A note',
+        nextNodeId: endings[5].id,
+        sortOrder: 3,
+      },
+      {
+        nodeId: q3.id,
+        label: 'Nothing',
+        nextNodeId: endings[6].id,
+        sortOrder: 4,
+      },
     ],
   });
 
   await prisma.case.update({
     where: { id: createdCase.id },
-    data: { startNodeId: start.id },
+    data: {
+      startNodeId: q1.id,
+    },
   });
 }
 

@@ -8,28 +8,51 @@ export async function getPublishedCaseBySlug(slug: string) {
     },
     include: {
       plush: true,
+    },
+  });
+}
+
+export async function getStartNodeByCaseSlug(slug: string) {
+  const foundCase = await prisma.case.findFirst({
+    where: {
+      slug,
+      status: 'PUBLISHED',
+    },
+    include: {
       startNode: {
         include: {
           answers: {
             orderBy: { sortOrder: 'asc' },
-            include: {
-              nextNode: true,
-            },
           },
         },
       },
     },
   });
+
+  if (!foundCase || !foundCase.startNode) {
+    return null;
+  }
+
+  return foundCase.startNode;
 }
 
-export async function getAdminCaseList() {
-  return prisma.case.findMany({
+export async function getNextNodeFromAnswer(answerId: string) {
+  const answer = await prisma.decisionAnswer.findUnique({
+    where: { id: answerId },
     include: {
-      plush: true,
-      nodes: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
+      nextNode: {
+        include: {
+          answers: {
+            orderBy: { sortOrder: 'asc' },
+          },
+        },
+      },
     },
   });
+
+  if (!answer) {
+    return null;
+  }
+
+  return answer.nextNode;
 }
