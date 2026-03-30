@@ -5,9 +5,11 @@ export async function getAdminCaseList() {
     include: {
       plush: true,
       startNode: true,
+      nodes: {
+        orderBy: { sortOrder: 'asc' },
+      },
       _count: {
         select: {
-          nodes: true,
           scans: true,
         },
       },

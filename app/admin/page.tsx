@@ -1,58 +1,47 @@
 export const dynamic = 'force-dynamic';
+
 import { getAdminCaseList } from '@/lib/cases';
 
 export default async function AdminPage() {
   const cases = await getAdminCaseList();
 
   return (
-    <main className="page">
-      <div className="container grid">
-        <section className="card">
-          <h1>Admin area</h1>
-          <p className="muted">
-            Initial dashboard base. Here we will add authentication, CRUD for plushies, decision trees,
-            final videos and QR generation.
+    <main className="min-h-screen bg-zinc-950 px-6 py-12 text-white">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <h1 className="mb-2 text-3xl font-bold">Admin area</h1>
+          <p className="text-zinc-300">
+            Base dashboard. Here we will add authentication, CRUD for plushies,
+            cases, decision trees, final videos and QR generation.
           </p>
         </section>
 
-        <section className="card">
-          <h2>Cases</h2>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Plush</th>
-                <th>Locale</th>
-                <th>Status</th>
-                <th>Nodes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cases.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.title}</td>
-                  <td>{item.plush.name}</td>
-                  <td>{item.locale}</td>
-                  <td>{item.status}</td>
-                  <td>{item.nodes.length}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <h2 className="mb-4 text-2xl font-semibold">Cases</h2>
 
-        <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-          <div className="card">
-            <h3>Next feature</h3>
-            <p className="muted">Authentication with protected admin session.</p>
-          </div>
-          <div className="card">
-            <h3>Next feature</h3>
-            <p className="muted">Decision tree editor for questions and endings.</p>
-          </div>
-          <div className="card">
-            <h3>Next feature</h3>
-            <p className="muted">Cloudflare Stream upload and video assignment.</p>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-zinc-400">
+                  <th className="px-3 py-2">Title</th>
+                  <th className="px-3 py-2">Plush</th>
+                  <th className="px-3 py-2">Language</th>
+                  <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Nodes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cases.map((item) => (
+                  <tr key={item.id} className="border-b border-white/5">
+                    <td className="px-3 py-2">{item.title}</td>
+                    <td className="px-3 py-2">{item.plush.name}</td>
+                    <td className="px-3 py-2">{item.language}</td>
+                    <td className="px-3 py-2">{item.status}</td>
+                    <td className="px-3 py-2">{item.nodes.length}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       </div>

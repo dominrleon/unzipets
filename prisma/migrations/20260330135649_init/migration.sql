@@ -2,13 +2,13 @@
 CREATE TYPE "CaseStatus" AS ENUM ('DRAFT', 'PUBLISHED');
 
 -- CreateEnum
-CREATE TYPE "NodeType" AS ENUM ('QUESTION', 'FINAL');
+CREATE TYPE "NodeType" AS ENUM ('QUESTION', 'ENDING');
 
 -- CreateTable
 CREATE TABLE "AdminUser" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "passwordHash" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -20,7 +20,6 @@ CREATE TABLE "Plush" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "description" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -32,12 +31,10 @@ CREATE TABLE "Plush" (
 CREATE TABLE "Case" (
     "id" TEXT NOT NULL,
     "plushId" TEXT NOT NULL,
-    "locale" TEXT NOT NULL DEFAULT 'en',
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
+    "language" TEXT NOT NULL DEFAULT 'en',
     "status" "CaseStatus" NOT NULL DEFAULT 'DRAFT',
-    "introTitle" TEXT,
-    "introText" TEXT,
     "startNodeId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -52,7 +49,7 @@ CREATE TABLE "DecisionNode" (
     "type" "NodeType" NOT NULL,
     "internalKey" TEXT NOT NULL,
     "title" TEXT,
-    "body" TEXT,
+    "content" TEXT,
     "videoUrl" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -66,6 +63,7 @@ CREATE TABLE "DecisionAnswer" (
     "id" TEXT NOT NULL,
     "nodeId" TEXT NOT NULL,
     "label" TEXT NOT NULL,
+    "value" TEXT,
     "nextNodeId" TEXT NOT NULL,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -78,8 +76,10 @@ CREATE TABLE "DecisionAnswer" (
 CREATE TABLE "ScanLog" (
     "id" TEXT NOT NULL,
     "caseId" TEXT NOT NULL,
+    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "finishedAt" TIMESTAMP(3),
+    "finalNodeId" TEXT,
     "sessionId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ScanLog_pkey" PRIMARY KEY ("id")
 );
