@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum CaseStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum NodeType {
+  QUESTION
+  FINAL
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Plush {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  cases       Case[]
+}
+
+model Case {
+  id          String     @id @default(cuid())
+  plushId     String
+  locale      String     @default("en")
+  title       String
+  slug        String     @unique
+  status      CaseStatus @default(DRAFT)
+  introTitle  String?
+  introText   String?
+  startNodeId String?    @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  plush       Plush      @relation(fields: [plushId], references: [id], onDelete: Cascade)
+  startNode   DecisionNode? @relation("CaseStartNode", fields: [startNodeId], references: [id], onDelete: SetNull)
+  nodes       DecisionNode[]
+  scans       ScanLog[]
+}
+
+model DecisionNode {
+  id          String      @id @default(cuid())
+  caseId      String
+  type        NodeType
+  internalKey String
+  title       String?
+  body        String?
+  videoUrl    String?
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  case        Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  incoming    DecisionAnswer[] @relation("AnswerNextNode")
+  answers     DecisionAnswer[]
+  caseStartOf Case?       @relation("CaseStartNode")
+
+  @@unique([caseId, internalKey])
+}
+
+model DecisionAnswer {
+  id         String       @id @default(cuid())
+  nodeId      String
+  label       String
+  nextNodeId  String
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  node        DecisionNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  nextNode    DecisionNode @relation("AnswerNextNode", fields: [nextNodeId], references: [id], onDelete: Restrict)
+}
+
+model ScanLog {
+  id         String   @id @default(cuid())
+  caseId      String
+  sessionId   String?
+  createdAt   DateTime @default(now())
+
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+}
