@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminCaseById } from '@/lib/cases';
-import { createDecisionNode } from './actions';
+import { createDecisionAnswer, createDecisionNode } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +13,7 @@ export default async function AdminCaseDetailPage({
   const { id } = await params;
   const caseItem = await getAdminCaseById(id);
   const createNodeAction = createDecisionNode.bind(null, caseItem.id);
+  const createAnswerAction = createDecisionAnswer.bind(null, caseItem.id);
 
   if (!caseItem) {
     notFound();
@@ -117,6 +118,85 @@ export default async function AdminCaseDetailPage({
                 className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
             >
                 Crear node
+            </button>
+            </div>
+        </form>
+        </section>
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <h2 className="mb-4 text-2xl font-semibold">Crear resposta</h2>
+
+        <form action={createAnswerAction} className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Node pregunta</label>
+                <select
+                name="nodeId"
+                required
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                defaultValue=""
+                >
+                <option value="" disabled>
+                    Selecciona un node QUESTION
+                </option>
+                {caseItem.nodes
+                    .filter((node) => node.type === 'QUESTION')
+                    .map((node) => (
+                    <option key={node.id} value={node.id}>
+                        {node.internalKey}
+                        {node.title ? ` — ${node.title}` : ''}
+                    </option>
+                    ))}
+                </select>
+            </div>
+
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Node següent</label>
+                <select
+                name="nextNodeId"
+                required
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                defaultValue=""
+                >
+                <option value="" disabled>
+                    Selecciona el node destí
+                </option>
+                {caseItem.nodes.map((node) => (
+                    <option key={node.id} value={node.id}>
+                    {node.internalKey}
+                    {node.title ? ` — ${node.title}` : ''}
+                    {` [${node.type}]`}
+                    </option>
+                ))}
+                </select>
+            </div>
+
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Text de la resposta</label>
+                <input
+                name="label"
+                required
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="Sí, continuar"
+                />
+            </div>
+
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Sort order</label>
+                <input
+                name="sortOrder"
+                type="number"
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="Si ho deixes buit, va al final"
+                />
+            </div>
+            </div>
+
+            <div>
+            <button
+                type="submit"
+                className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
+            >
+                Crear resposta
             </button>
             </div>
         </form>
