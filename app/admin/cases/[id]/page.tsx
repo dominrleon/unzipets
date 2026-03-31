@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAdminCaseById } from '@/lib/cases';
+import { getAdminCaseById, validateCaseGraph } from '@/lib/cases';
 import {
   createDecisionAnswer,
   createDecisionNode,
+  deleteDecisionAnswer,
+  deleteDecisionNode,
   updateDecisionAnswer,
   updateDecisionNode,
 } from './actions';
@@ -16,16 +18,20 @@ export default async function AdminCaseDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const caseItem = await getAdminCaseById(id);
+const caseItem = await getAdminCaseById(id);
 
-  if (!caseItem) {
-    notFound();
-  }
+if (!caseItem) {
+  notFound();
+}
+
+const validation = await validateCaseGraph(id);
 
   const createNodeAction = createDecisionNode.bind(null, caseItem.id);
   const createAnswerAction = createDecisionAnswer.bind(null, caseItem.id);
   const updateNodeAction = updateDecisionNode.bind(null, caseItem.id);
   const updateAnswerAction = updateDecisionAnswer.bind(null, caseItem.id);
+  const deleteNodeAction = deleteDecisionNode.bind(null, caseItem.id);
+  const deleteAnswerAction = deleteDecisionAnswer.bind(null, caseItem.id);
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-12 text-white">
@@ -223,6 +229,44 @@ export default async function AdminCaseDetailPage({
             <p><strong>Total nodes:</strong> {caseItem.nodes.length}</p>
           </div>
         </section>
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-2xl font-semibold">Validació del graf</h2>
+                <span
+                className={`rounded-full px-3 py-1 text-sm ${
+                    validation.isValid
+                    ? 'border border-green-500/30 text-green-300'
+                    : 'border border-yellow-500/30 text-yellow-300'
+                }`}
+                >
+                {validation.isValid ? 'Vàlid' : 'Amb incidències'}
+                </span>
+            </div>
+
+            <div className="mb-4 grid gap-3 text-sm text-zinc-300 md:grid-cols-4">
+                <p><strong>Total nodes:</strong> {validation.stats.totalNodes}</p>
+                <p><strong>Reachables:</strong> {validation.stats.reachableNodes}</p>
+                <p><strong>Orfes:</strong> {validation.stats.orphanNodes}</p>
+                <p><strong>Finals reachables:</strong> {validation.stats.reachableEndings}</p>
+            </div>
+
+            {validation.issues.length > 0 ? (
+                <div className="space-y-2">
+                {validation.issues.map((issue, index) => (
+                    <div
+                    key={`${index}-${issue}`}
+                    className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm text-yellow-100"
+                    >
+                    {issue}
+                    </div>
+                ))}
+                </div>
+            ) : (
+                <p className="text-sm text-green-300">
+                El case està ben connectat i no s’han detectat incidències estructurals.
+                </p>
+            )}
+        </section>
 
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <h2 className="mb-4 text-2xl font-semibold">Nodes</h2>
@@ -294,72 +338,91 @@ export default async function AdminCaseDetailPage({
                     Guardar canvis
                   </button>
                 </form>
-
+                <form action={deleteNodeAction} className="mt-3">
+                    <input type="hidden" name="nodeId" value={node.id} />
+                    <button
+                        type="submit"
+                        className="rounded-lg border border-red-500/30 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+                    >
+                        Eliminar node
+                    </button>
+                </form>
                 {node.answers.length > 0 ? (
   <div className="mt-4 space-y-3">
     <h4 className="text-sm font-semibold uppercase tracking-wide text-zinc-400">
       Respostes
     </h4>
 
-    {node.answers.map((answer) => (
-      <form
-        key={answer.id}
-        action={updateAnswerAction}
-        className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-3 text-sm"
-      >
-        <input type="hidden" name="answerId" value={answer.id} />
+   {node.answers.map((answer) => (
+  <div
+    key={answer.id}
+    className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-3 text-sm"
+  >
+    <form action={updateAnswerAction} className="space-y-3">
+      <input type="hidden" name="answerId" value={answer.id} />
+
+      <div>
+        <label className="mb-1 block text-xs text-zinc-400">Text resposta</label>
+        <input
+          name="label"
+          defaultValue={answer.label}
+          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
+        />
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-xs text-zinc-400">Node destí</label>
+          <select
+            name="nextNodeId"
+            defaultValue={answer.nextNodeId}
+            className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
+          >
+            {caseItem.nodes.map((targetNode) => (
+              <option key={targetNode.id} value={targetNode.id}>
+                {targetNode.internalKey}
+                {targetNode.title ? ` — ${targetNode.title}` : ''}
+                {` [${targetNode.type}]`}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div>
-          <label className="mb-1 block text-xs text-zinc-400">Text resposta</label>
+          <label className="mb-1 block text-xs text-zinc-400">Sort order</label>
           <input
-            name="label"
-            defaultValue={answer.label}
+            name="sortOrder"
+            type="number"
+            defaultValue={answer.sortOrder}
             className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
           />
         </div>
+      </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-xs text-zinc-400">Node destí</label>
-            <select
-              name="nextNodeId"
-              defaultValue={answer.nextNodeId}
-              className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
-            >
-              {caseItem.nodes.map((targetNode) => (
-                <option key={targetNode.id} value={targetNode.id}>
-                  {targetNode.internalKey}
-                  {targetNode.title ? ` — ${targetNode.title}` : ''}
-                  {` [${targetNode.type}]`}
-                </option>
-              ))}
-            </select>
-          </div>
+      <p className="text-xs text-zinc-500">
+        Destí actual: {answer.nextNode.internalKey}
+        {answer.nextNode.title ? ` (${answer.nextNode.title})` : ''}
+      </p>
 
-          <div>
-            <label className="mb-1 block text-xs text-zinc-400">Sort order</label>
-            <input
-              name="sortOrder"
-              type="number"
-              defaultValue={answer.sortOrder}
-              className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
-            />
-          </div>
-        </div>
+      <button
+        type="submit"
+        className="rounded-lg border border-white/10 px-3 py-2 text-xs hover:bg-white/10"
+      >
+        Guardar resposta
+      </button>
+    </form>
 
-        <p className="text-xs text-zinc-500">
-          Destí actual: {answer.nextNode.internalKey}
-          {answer.nextNode.title ? ` (${answer.nextNode.title})` : ''}
-        </p>
-
-        <button
-          type="submit"
-          className="rounded-lg border border-white/10 px-3 py-2 text-xs hover:bg-white/10"
-        >
-          Guardar resposta
-        </button>
-      </form>
-    ))}
+    <form action={deleteAnswerAction}>
+      <input type="hidden" name="answerId" value={answer.id} />
+      <button
+        type="submit"
+        className="rounded-lg border border-red-500/30 px-3 py-2 text-xs text-red-300 hover:bg-red-500/10"
+      >
+        Eliminar resposta
+      </button>
+    </form>
+  </div>
+))}
   </div>
 ) : (
   <p className="mt-4 text-sm text-zinc-500">Este node no té respostes.</p>

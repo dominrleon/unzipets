@@ -266,3 +266,90 @@ export async function updateDecisionAnswer(caseId: string, formData: FormData) {
 
   revalidatePath(`/admin/cases/${caseId}`);
 }
+export async function deleteDecisionAnswer(caseId: string, formData: FormData) {
+  const answerId = String(formData.get('answerId') ?? '').trim();
+
+  if (!answerId) {
+    throw new Error('answerId és obligatori');
+  }
+
+  const answer = await prisma.decisionAnswer.findFirst({
+    where: {
+      id: answerId,
+      node: {
+        caseId,
+      },
+    },
+  });
+
+  if (!answer) {
+    throw new Error('Resposta no trobada');
+  }
+
+  await prisma.decisionAnswer.delete({
+    where: {
+      id: answerId,
+    },
+  });
+
+  revalidatePath(`/admin/cases/${caseId}`);
+}
+export async function deleteDecisionNode(caseId: string, formData: FormData) {
+  const nodeId = String(formData.get('nodeId') ?? '').trim();
+
+  if (!nodeId) {
+    throw new Error('nodeId és obligatori');
+  }
+
+  const node = await prisma.decisionNode.findFirst({
+    where: {
+      id: nodeId,
+      caseId,
+    },
+    include: {
+      case: true,
+      _count: {
+        select: {
+          answers: true,
+        },
+      },
+    },
+  });
+
+  if (!node) {
+    throw new Error('Node no trobat');
+  }
+
+  if (node.case.startNodeId === node.id) {
+    throw new Error('No pots eliminar el start node actual');
+  }
+
+  const incomingLinks = await prisma.decisionAnswer.count({
+    where: {
+      nextNodeId: node.id,
+      node: {
+        caseId,
+      },
+    },
+  });
+
+  if (incomingLinks > 0) {
+    throw new Error('No pots eliminar este node perquè hi ha respostes que apunten a ell');
+  }
+
+  if (node._count.answers > 0) {
+    await prisma.decisionAnswer.deleteMany({
+      where: {
+        nodeId: node.id,
+      },
+    });
+  }
+
+  await prisma.decisionNode.delete({
+    where: {
+      id: node.id,
+    },
+  });
+
+  revalidatePath(`/admin/cases/${caseId}`);
+}
