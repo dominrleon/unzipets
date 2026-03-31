@@ -146,3 +146,123 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
   revalidatePath('/admin');
   revalidatePath(`/admin/cases/${caseId}`);
 }
+
+export async function updateDecisionNode(caseId: string, formData: FormData) {
+  const nodeId = String(formData.get('nodeId') ?? '').trim();
+  const title = String(formData.get('title') ?? '').trim();
+  const content = String(formData.get('content') ?? '').trim();
+  const videoUrlRaw = String(formData.get('videoUrl') ?? '').trim();
+  const typeRaw = String(formData.get('type') ?? '').trim();
+  const sortOrderRaw = String(formData.get('sortOrder') ?? '').trim();
+  const setAsStartNode = formData.get('setAsStartNode') === 'on';
+
+  if (!nodeId) {
+    throw new Error('nodeId és obligatori');
+  }
+
+  const node = await prisma.decisionNode.findFirst({
+    where: { id: nodeId, caseId },
+  });
+
+  if (!node) {
+    throw new Error('Node no trobat');
+  }
+
+  let sortOrder = node.sortOrder;
+
+  if (sortOrderRaw) {
+    const parsed = Number(sortOrderRaw);
+    if (Number.isNaN(parsed)) {
+      throw new Error('sortOrder no vàlid');
+    }
+    sortOrder = parsed;
+  }
+
+  await prisma.decisionNode.update({
+    where: { id: nodeId },
+    data: {
+      title: title || null,
+      content: content || null,
+      videoUrl: videoUrlRaw || null,
+      type: typeRaw as any,
+      sortOrder,
+    },
+  });
+
+  if (setAsStartNode) {
+    await prisma.case.update({
+      where: { id: caseId },
+      data: {
+        startNodeId: nodeId,
+      },
+    });
+  }
+
+  revalidatePath(`/admin/cases/${caseId}`);
+}
+export async function updateDecisionAnswer(caseId: string, formData: FormData) {
+  const answerId = String(formData.get('answerId') ?? '').trim();
+  const label = String(formData.get('label') ?? '').trim();
+  const nextNodeId = String(formData.get('nextNodeId') ?? '').trim();
+  const sortOrderRaw = String(formData.get('sortOrder') ?? '').trim();
+
+  if (!answerId) {
+    throw new Error('answerId és obligatori');
+  }
+
+  if (!label) {
+    throw new Error('El text de la resposta és obligatori');
+  }
+
+  if (!nextNodeId) {
+    throw new Error('Has de seleccionar el node destí');
+  }
+
+  const answer = await prisma.decisionAnswer.findFirst({
+    where: {
+      id: answerId,
+      node: {
+        caseId,
+      },
+    },
+    include: {
+      node: true,
+    },
+  });
+
+  if (!answer) {
+    throw new Error('Resposta no trobada');
+  }
+
+  const nextNode = await prisma.decisionNode.findFirst({
+    where: {
+      id: nextNodeId,
+      caseId,
+    },
+  });
+
+  if (!nextNode) {
+    throw new Error('El node destí no existeix en este case');
+  }
+
+  let sortOrder = answer.sortOrder;
+
+  if (sortOrderRaw) {
+    const parsed = Number(sortOrderRaw);
+    if (Number.isNaN(parsed)) {
+      throw new Error('sortOrder no vàlid');
+    }
+    sortOrder = parsed;
+  }
+
+  await prisma.decisionAnswer.update({
+    where: { id: answerId },
+    data: {
+      label,
+      nextNodeId,
+      sortOrder,
+    },
+  });
+
+  revalidatePath(`/admin/cases/${caseId}`);
+}
