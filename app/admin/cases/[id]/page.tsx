@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminCaseById } from '@/lib/cases';
+import { createDecisionNode } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,7 @@ export default async function AdminCaseDetailPage({
 }) {
   const { id } = await params;
   const caseItem = await getAdminCaseById(id);
+  const createNodeAction = createDecisionNode.bind(null, caseItem.id);
 
   if (!caseItem) {
     notFound();
@@ -33,6 +35,92 @@ export default async function AdminCaseDetailPage({
           </Link>
         </div>
 
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <h2 className="mb-4 text-2xl font-semibold">Crear node</h2>
+
+        <form action={createNodeAction} className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Internal key</label>
+                <input
+                name="internalKey"
+                required
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="start-question"
+                />
+            </div>
+
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Type</label>
+                <select
+                name="type"
+                required
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                defaultValue="QUESTION"
+                >
+                <option value="QUESTION">QUESTION</option>
+                <option value="ENDING">ENDING</option>
+                </select>
+            </div>
+
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Title</label>
+                <input
+                name="title"
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="Pregunta 1"
+                />
+            </div>
+
+            <div>
+                <label className="mb-1 block text-sm text-zinc-300">Sort order</label>
+                <input
+                name="sortOrder"
+                type="number"
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="Si ho deixes buit, va al final"
+                />
+            </div>
+            </div>
+
+            <div>
+            <label className="mb-1 block text-sm text-zinc-300">Content</label>
+            <textarea
+                name="content"
+                rows={5}
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="Text del node"
+            />
+            </div>
+
+            <div>
+            <label className="mb-1 block text-sm text-zinc-300">Video URL</label>
+            <input
+                name="videoUrl"
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                placeholder="https://..."
+            />
+            </div>
+
+            <label className="flex items-center gap-3 text-sm text-zinc-300">
+            <input
+                type="checkbox"
+                name="setAsStartNode"
+                className="h-4 w-4 rounded border-white/20 bg-black/20"
+            />
+            Marcar este node com a start node
+            </label>
+
+            <div>
+            <button
+                type="submit"
+                className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
+            >
+                Crear node
+            </button>
+            </div>
+        </form>
+        </section>
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <div className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
             <p><strong>ID:</strong> {caseItem.id}</p>
