@@ -11,14 +11,14 @@ export default async function AdminCaseDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const caseItem = await getAdminCaseById(id);
-  const createNodeAction = createDecisionNode.bind(null, caseItem.id);
-  const createAnswerAction = createDecisionAnswer.bind(null, caseItem.id);
+    const caseItem = await getAdminCaseById(id);
 
-  if (!caseItem) {
+    if (!caseItem) {
     notFound();
-  }
+    }
 
+    const createNodeAction = createDecisionNode.bind(null, caseItem.id);
+    const createAnswerAction = createDecisionAnswer.bind(null, caseItem.id);
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-12 text-white">
       <div className="mx-auto max-w-6xl space-y-6">
