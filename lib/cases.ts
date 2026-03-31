@@ -76,3 +76,29 @@ export async function getNextNodeFromAnswer(answerId: string) {
 
   return answer.nextNode;
 }
+export async function getAdminCaseById(id: string) {
+  return prisma.case.findUnique({
+    where: { id },
+    include: {
+      plush: true,
+      startNode: true,
+      nodes: {
+        orderBy: { sortOrder: 'asc' },
+        include: {
+          answers: {
+            orderBy: { sortOrder: 'asc' },
+            include: {
+              nextNode: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          scans: true,
+        },
+      },
+    },
+  });
+}
+
