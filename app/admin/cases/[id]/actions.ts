@@ -147,6 +147,94 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
   revalidatePath(`/admin/cases/${caseId}`);
 }
 
+export async function updateCaseMeta(caseId: string, formData: FormData) {
+  const title = String(formData.get('title') ?? '').trim();
+  const slug = String(formData.get('slug') ?? '').trim();
+  const language = String(formData.get('language') ?? '').trim();
+  const status = String(formData.get('status') ?? '').trim();
+
+  const fileNumber = String(formData.get('fileNumber') ?? '').trim();
+  const caseDate = String(formData.get('caseDate') ?? '').trim();
+  const deathDate = String(formData.get('deathDate') ?? '').trim();
+  const deathPlace = String(formData.get('deathPlace') ?? '').trim();
+  const causeOfDeath = String(formData.get('causeOfDeath') ?? '').trim();
+  const investigationText = String(formData.get('investigationText') ?? '').trim();
+
+  const plushName = String(formData.get('plushName') ?? '').trim();
+  const plushSlug = String(formData.get('plushSlug') ?? '').trim();
+  const imageUrl = String(formData.get('imageUrl') ?? '').trim();
+  const ageRaw = String(formData.get('age') ?? '').trim();
+  const birthDate = String(formData.get('birthDate') ?? '').trim();
+  const race = String(formData.get('race') ?? '').trim();
+  const origin = String(formData.get('origin') ?? '').trim();
+  const identificationNumber = String(formData.get('identificationNumber') ?? '').trim();
+
+  if (!title) {
+    throw new Error('title és obligatori');
+  }
+
+  if (!slug) {
+    throw new Error('slug és obligatori');
+  }
+
+  if (!plushName) {
+    throw new Error('El nom del plush és obligatori');
+  }
+
+  if (!plushSlug) {
+    throw new Error('El slug del plush és obligatori');
+  }
+
+  let age: number | null = null;
+  if (ageRaw) {
+    age = Number(ageRaw);
+    if (Number.isNaN(age)) {
+      throw new Error('age no és vàlid');
+    }
+  }
+
+  const caseItem = await prisma.case.findUnique({
+    where: { id: caseId },
+    include: { plush: true },
+  });
+
+  if (!caseItem) {
+    throw new Error('Case no trobat');
+  }
+
+  await prisma.case.update({
+    where: { id: caseId },
+    data: {
+      title,
+      slug,
+      language: language || 'en',
+      status: status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
+      fileNumber: fileNumber || null,
+      caseDate: caseDate || null,
+      deathDate: deathDate || null,
+      deathPlace: deathPlace || null,
+      causeOfDeath: causeOfDeath || null,
+      investigationText: investigationText || null,
+      plush: {
+        update: {
+          name: plushName,
+          slug: plushSlug,
+          imageUrl: imageUrl || null,
+          age,
+          birthDate: birthDate || null,
+          race: race || null,
+          origin: origin || null,
+          identificationNumber: identificationNumber || null,
+        },
+      },
+    },
+  });
+
+  revalidatePath('/admin');
+  revalidatePath(`/admin/cases/${caseId}`);
+  revalidatePath(`/case/${slug}`);
+}
+
 export async function updateDecisionNode(caseId: string, formData: FormData) {
   const nodeId = String(formData.get('nodeId') ?? '').trim();
   const title = String(formData.get('title') ?? '').trim();

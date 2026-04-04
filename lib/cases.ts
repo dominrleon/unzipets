@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { serializeNode } from '@/lib/serializers';
 
 export async function getAdminCaseList() {
   return prisma.case.findMany({
@@ -32,13 +33,14 @@ export async function getPublishedCaseBySlug(slug: string) {
   });
 }
 
-export async function getStartNodeByCaseSlug(slug: string) {
+export async function getCasePlayerData(slug: string) {
   const foundCase = await prisma.case.findFirst({
     where: {
       slug,
       status: 'PUBLISHED',
     },
     include: {
+      plush: true,
       startNode: {
         include: {
           answers: {
@@ -53,7 +55,19 @@ export async function getStartNodeByCaseSlug(slug: string) {
     return null;
   }
 
-  return foundCase.startNode;
+  return {
+    id: foundCase.id,
+    slug: foundCase.slug,
+    title: foundCase.title,
+    fileNumber: foundCase.fileNumber,
+    caseDate: foundCase.caseDate,
+    deathDate: foundCase.deathDate,
+    deathPlace: foundCase.deathPlace,
+    causeOfDeath: foundCase.causeOfDeath,
+    investigationText: foundCase.investigationText,
+    plush: foundCase.plush,
+    node: serializeNode(foundCase.startNode),
+  };
 }
 
 export async function getNextNodeFromAnswer(answerId: string) {

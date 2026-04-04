@@ -6,6 +6,7 @@ import {
   createDecisionNode,
   deleteDecisionAnswer,
   deleteDecisionNode,
+  updateCaseMeta,
   updateDecisionAnswer,
   updateDecisionNode,
 } from './actions';
@@ -32,6 +33,7 @@ const validation = await validateCaseGraph(id);
   const updateAnswerAction = updateDecisionAnswer.bind(null, caseItem.id);
   const deleteNodeAction = deleteDecisionNode.bind(null, caseItem.id);
   const deleteAnswerAction = deleteDecisionAnswer.bind(null, caseItem.id);
+  const updateCaseMetaAction = updateCaseMeta.bind(null, caseItem.id);
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-12 text-white">
@@ -49,7 +51,197 @@ const validation = await validateCaseGraph(id);
             Tornar
           </Link>
         </div>
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <h2 className="mb-4 text-2xl font-semibold">Dades del case i del plush</h2>
 
+            <form action={updateCaseMetaAction} className="space-y-6">
+                <div>
+                <h3 className="mb-3 text-lg font-medium text-zinc-200">Case</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Title</label>
+                    <input
+                        name="title"
+                        defaultValue={caseItem.title}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Slug</label>
+                    <input
+                        name="slug"
+                        defaultValue={caseItem.slug}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Language</label>
+                    <input
+                        name="language"
+                        defaultValue={caseItem.language}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Status</label>
+                    <select
+                        name="status"
+                        defaultValue={caseItem.status}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    >
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="PUBLISHED">PUBLISHED</option>
+                    </select>
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">File number</label>
+                    <input
+                        name="fileNumber"
+                        defaultValue={caseItem.fileNumber ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Case date</label>
+                    <input
+                        name="caseDate"
+                        defaultValue={caseItem.caseDate ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Death date</label>
+                    <input
+                        name="deathDate"
+                        defaultValue={caseItem.deathDate ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Death place</label>
+                    <input
+                        name="deathPlace"
+                        defaultValue={caseItem.deathPlace ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+                </div>
+
+                <div className="mt-4">
+                    <label className="mb-1 block text-sm text-zinc-300">Cause of death</label>
+                    <input
+                    name="causeOfDeath"
+                    defaultValue={caseItem.causeOfDeath ?? ''}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <label className="mb-1 block text-sm text-zinc-300">Investigation text</label>
+                    <textarea
+                    name="investigationText"
+                    defaultValue={caseItem.investigationText ?? ''}
+                    rows={3}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                </div>
+                </div>
+
+                <div>
+                <h3 className="mb-3 text-lg font-medium text-zinc-200">Plush</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Plush name</label>
+                    <input
+                        name="plushName"
+                        defaultValue={caseItem.plush.name}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Plush slug</label>
+                    <input
+                        name="plushSlug"
+                        defaultValue={caseItem.plush.slug}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Image URL</label>
+                    <input
+                        name="imageUrl"
+                        defaultValue={caseItem.plush.imageUrl ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Age</label>
+                    <input
+                        name="age"
+                        type="number"
+                        defaultValue={caseItem.plush.age ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Birth date</label>
+                    <input
+                        name="birthDate"
+                        defaultValue={caseItem.plush.birthDate ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Race</label>
+                    <input
+                        name="race"
+                        defaultValue={caseItem.plush.race ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Origin</label>
+                    <input
+                        name="origin"
+                        defaultValue={caseItem.plush.origin ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+
+                    <div>
+                    <label className="mb-1 block text-sm text-zinc-300">Identification number</label>
+                    <input
+                        name="identificationNumber"
+                        defaultValue={caseItem.plush.identificationNumber ?? ''}
+                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
+                    />
+                    </div>
+                </div>
+                </div>
+
+                <div>
+                <button
+                    type="submit"
+                    className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
+                >
+                    Guardar dades generals
+                </button>
+                </div>
+            </form>
+            </section>
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <h2 className="mb-4 text-2xl font-semibold">Crear node</h2>
 

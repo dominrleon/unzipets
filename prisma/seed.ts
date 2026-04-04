@@ -24,6 +24,12 @@ async function main() {
     data: {
       name: 'Flash',
       slug: 'flash',
+      imageUrl: '/unzipets/animals/flash.png',
+      age: 23,
+      birthDate: '06 December 2002',
+      race: 'Green Turtle',
+      origin: 'Akrumal',
+      identificationNumber: '3335569179',
       isActive: true,
     },
   });
@@ -35,6 +41,12 @@ async function main() {
       slug: 'flash',
       language: 'en',
       status: CaseStatus.PUBLISHED,
+      fileNumber: '18100225AF',
+      caseDate: '18/11/2025',
+      deathDate: '15/11/2025',
+      deathPlace: 'On the coast of Akrumal beach',
+      causeOfDeath: 'UNKNOWN (Investigate it yourself)',
+      investigationText: 'Investigate the cause of death, discover the truth!',
     },
   });
 

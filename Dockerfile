@@ -5,7 +5,7 @@ RUN apk add --no-cache libc6-compat openssl
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
 
-RUN npm install
+RUN npm install --include=dev
 RUN npm install -D @types/bcryptjs
 
 FROM base AS builder

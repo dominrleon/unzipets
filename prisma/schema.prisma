@@ -16,31 +16,43 @@ model AdminUser {
 }
 
 model Plush {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  name                 String
+  slug                 String   @unique
+  imageUrl             String?
+  age                  Int?
+  birthDate            String?
+  race                 String?
+  origin               String?
+  identificationNumber String?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  cases     Case[]
+  cases                Case[]
 }
 
 model Case {
-  id          String      @id @default(cuid())
-  plushId     String
-  title       String
-  slug        String      @unique
-  language    String      @default("en")
-  status      CaseStatus  @default(DRAFT)
-  startNodeId String?     @unique
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  plushId         String
+  title           String
+  slug            String      @unique
+  language        String      @default("en")
+  status          CaseStatus  @default(DRAFT)
+  fileNumber      String?
+  caseDate        String?
+  deathDate       String?
+  deathPlace      String?
+  causeOfDeath    String?
+  investigationText String?
+  startNodeId     String?     @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  plush       Plush         @relation(fields: [plushId], references: [id], onDelete: Cascade)
-  startNode   DecisionNode? @relation("CaseStartNode", fields: [startNodeId], references: [id], onDelete: SetNull)
-  nodes       DecisionNode[]
-  scans       ScanLog[]
+  plush           Plush         @relation(fields: [plushId], references: [id], onDelete: Cascade)
+  startNode       DecisionNode? @relation("CaseStartNode", fields: [startNodeId], references: [id], onDelete: SetNull)
+  nodes           DecisionNode[]
+  scans           ScanLog[]
 }
 
 model DecisionNode {

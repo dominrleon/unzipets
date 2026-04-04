@@ -12,7 +12,7 @@ export default async function AdminPage() {
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <h1 className="mb-2 text-3xl font-bold">Admin area</h1>
           <p className="text-zinc-300">
-            Gestió de casos, nodes, finals i QR.
+            Cases, nodes, finals and QR codes.
           </p>
         </section>
 
@@ -26,11 +26,15 @@ export default async function AdminPage() {
               <thead>
                 <tr className="border-b border-white/10 text-left text-zinc-400">
                   <th className="px-3 py-2">Title</th>
+                  <th className="px-3 py-2">Slug</th>
                   <th className="px-3 py-2">Plush</th>
                   <th className="px-3 py-2">Language</th>
                   <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Start node</th>
                   <th className="px-3 py-2">Nodes</th>
-                  <th className="px-3 py-2">Actions</th>
+                  <th className="px-3 py-2">Scans</th>
+                  <th className="px-3 py-2">Edit</th>
+                  <th className="px-3 py-2">View</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,7 +59,7 @@ export default async function AdminPage() {
                         href={`/admin/cases/${item.id}`}
                         className="rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/10"
                       >
-                        Editar
+                        Edit
                       </Link>
                     </td>
                     <td className="px-3 py-2">
@@ -63,7 +67,7 @@ export default async function AdminPage() {
                         href={`/admin/cases/${item.id}`}
                         className="rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/10"
                       >
-                        Veure
+                        Edit
                       </Link>
                     </td>
                   </tr>

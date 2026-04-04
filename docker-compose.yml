@@ -1,34 +1,33 @@
 services:
-  web:
-    build: .
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy
-    command: sh -c "npm run dev"
-    volumes:
-      - .:/app
-      - /app/node_modules
-
   db:
     image: postgres:16-alpine
-    restart: unless-stopped
     environment:
-      POSTGRES_DB: unzipets
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: unzipets
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d unzipets"]
       interval: 5s
       timeout: 5s
-      retries: 20
+      retries: 10
 
-volumes:
-  postgres_data:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/unzipets?schema=public
+      DIRECT_URL: postgresql://postgres:postgres@db:5432/unzipets?schema=public
+      NODE_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: ["sh", "./docker/entrypoint.dev.sh"]
+
+#volumes:
+  #postgres_data:
