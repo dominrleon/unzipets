@@ -231,10 +231,12 @@ label {
 }
 
 .unz-phone-logo {
-  width: 150px;
-  max-width: 70%;
-  display: block;
-  margin: 0 auto 6px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 300px;
 }
 
 .unz-phone-subtitle {
@@ -332,11 +334,17 @@ label {
   min-height: 62px;
   padding: 0 16px;
   font-family: var(--unz-font-display);
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: #231400;
   cursor: pointer;
   text-transform: uppercase;
   transition: transform 0.15s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
 }
 
 .unz-answer-button:hover {
@@ -354,6 +362,7 @@ label {
 }
 
 .unz-video-box {
+  position: relative;
   border-radius: 12px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.22);
@@ -366,3 +375,130 @@ label {
   height: auto;
 }
 
+
+.unz-video-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.unz-video-modal-card {
+  position: relative;
+  width: min(92vw, 370px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.unz-video-modal-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.unz-video-modal-title {
+  text-align: center;
+  font-family: var(--unz-font-display);
+  font-size: 2rem;
+  line-height: 0.95;
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.unz-video-modal-box {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.35);
+}
+
+.unz-video-modal-player {
+  display: block;
+  width: 100%;
+  max-height: 68vh;
+  background: #000;
+}
+
+.unz-explore-button--modal {
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .unz-watch-video-button {
+  font-size: 1.45rem;
+  min-height: 58px;
+  padding: 0 12px;
+}
+
+  .unz-phone-logo {
+    width: 132px;
+  }
+
+  .unz-ending-title,
+  .unz-video-modal-title {
+    font-size: 1.7rem;
+  }
+
+  .unz-answer-button {
+    font-size: 1.45rem;
+    min-height: 58px;
+    padding: 0 12px;
+  }
+
+  .unz-explore-button {
+    font-size: 1.45rem;
+  }
+
+  .unz-video-play-icon {
+    width: 72px;
+    height: 72px;
+    font-size: 2rem;
+  }
+}
+.unz-watch-video-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 64px;
+  border: none;
+  border-radius: 14px;
+  background-image: url('/unzipets/ui/button.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 0 18px;
+  font-family: var(--unz-font-display);
+  font-size: 1.8rem;
+  color: #231400;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.unz-watch-video-button:hover {
+  transform: scale(1.02);
+}
+
+.unz-watch-video-button:active {
+  transform: scale(0.98);
+}

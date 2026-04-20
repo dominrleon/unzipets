@@ -27,6 +27,15 @@ export default async function CasePage({ params }: Params) {
           slug={data.slug}
           initialNode={data.node}
           plush={data.plush}
+          caseMeta={{
+            title: data.title,
+            fileNumber: data.fileNumber,
+            caseDate: data.caseDate,
+            deathDate: data.deathDate,
+            deathPlace: data.deathPlace,
+            causeOfDeath: data.causeOfDeath,
+            investigationText: data.investigationText,
+          }}
         />
       </div>
     </main>

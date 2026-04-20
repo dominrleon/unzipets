@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Answer = {
   id: string;
@@ -20,58 +20,54 @@ type PlushData = {
   id: string;
   name: string;
   slug: string;
+  imageUrl: string | null;
+  age: number | null;
+  birthDate: string | null;
+  race: string | null;
+  origin: string | null;
+  identificationNumber: string | null;
 };
 
-const plushVisualMap: Record<
-  string,
-  {
-    imageUrl: string;
-    race: string;
-    age: string;
-    origin: string;
-  }
-> = {
-  flash: {
-    imageUrl: '/unzipets/animals/flash.png',
-    race: 'GREEN TURTLE',
-    age: '23 YEARS',
-    origin: 'AKUMAL',
-  },
-  luna: {
-    imageUrl: '/unzipets/animals/luna.png',
-    race: 'UNKNOWN',
-    age: 'UNKNOWN',
-    origin: 'UNKNOWN',
-  },
-  rocky: {
-    imageUrl: '/unzipets/animals/rocky.png',
-    race: 'UNKNOWN',
-    age: 'UNKNOWN',
-    origin: 'UNKNOWN',
-  },
-};
-
-const defaultPlushVisual = {
-  imageUrl: '/unzipets/animals/fallback.png',
-  race: 'UNKNOWN',
-  age: 'UNKNOWN',
-  origin: 'UNKNOWN',
+type CaseMeta = {
+  title: string;
+  fileNumber: string | null;
+  caseDate: string | null;
+  deathDate: string | null;
+  deathPlace: string | null;
+  causeOfDeath: string | null;
+  investigationText: string | null;
 };
 
 export default function CasePlayer({
   slug,
   initialNode,
   plush,
+  caseMeta,
 }: {
   slug: string;
   initialNode: NodeData;
   plush: PlushData;
+  caseMeta: CaseMeta;
 }) {
   const [node, setNode] = useState<NodeData>(initialNode);
   const [loading, setLoading] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
-  const plushUi = plushVisualMap[plush.slug] ?? defaultPlushVisual;
-  const isEnding = node.type === 'ENDING';
+const isEnding = node.type === 'ENDING';
+
+useEffect(() => {
+  if (!isEnding) {
+    setIsVideoOpen(false);
+  }
+}, [isEnding]);
+
+  const plushImage = plush.imageUrl || '/unzipets/animals/fallback.png';
+  const plushAge =
+    plush.age !== null && plush.age !== undefined
+      ? `${plush.age} YEARS`
+      : 'UNKNOWN';
+  const plushRace = plush.race ? plush.race.toUpperCase() : 'UNKNOWN';
+  const plushOrigin = plush.origin ? plush.origin.toUpperCase() : 'UNKNOWN';
 
   async function handleAnswer(answerId: string) {
     try {
@@ -115,50 +111,97 @@ export default function CasePlayer({
       <div className="unz-phone-body">
         <div className="unz-file-card">
           <div className="unz-file-top-row">
-            <span>FILE: 18100225AF</span>
-            <span>DATE: 18/11/2025</span>
+            <span>FILE: {caseMeta.fileNumber || 'UNKNOWN'}</span>
+            <span>DATE: {caseMeta.caseDate || 'UNKNOWN'}</span>
           </div>
 
           <div className="unz-file-info">
             <div className="unz-file-animal">
-              <img src={plushUi.imageUrl} alt={plush.name} />
+              <img src={plushImage} alt={plush.name} />
             </div>
 
             <div className="unz-file-meta">
               <p><strong>NAME:</strong> {plush.name.toUpperCase()}</p>
-              <p><strong>AGE:</strong> {plushUi.age}</p>
-              <p><strong>RACE:</strong> {plushUi.race}</p>
-              <p><strong>ORIGIN:</strong> {plushUi.origin}</p>
+              <p><strong>AGE:</strong> {plushAge}</p>
+              <p><strong>RACE:</strong> {plushRace}</p>
+              <p><strong>ORIGIN:</strong> {plushOrigin}</p>
             </div>
           </div>
 
           <div className="unz-file-copy">
-            INVESTIGATE THE CAUSE OF DEATH,
-            <br />
-            DISCOVER THE TRUTH!
+            {caseMeta.investigationText || 'INVESTIGATE THE CAUSE OF DEATH, DISCOVER THE TRUTH!'}
           </div>
 
           {isEnding ? (
-            <>
-              <div className="unz-ending-title">
+  <>
+    <div className="unz-ending-title">
+      YOU FOUND A VIDEO EVIDENCE!
+      <br />
+      CHECK IT OUT!
+    </div>
+
+    {node.videoUrl ? (
+      <>
+        <button
+          type="button"
+          className="unz-watch-video-button"
+          onClick={() => setIsVideoOpen(true)}
+        >
+          WATCH VIDEO
+        </button>
+
+        {isVideoOpen && (
+          <div
+            className="unz-video-modal-overlay"
+            onClick={() => setIsVideoOpen(false)}
+          >
+            <div
+              className="unz-video-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="unz-video-modal-close"
+                onClick={() => setIsVideoOpen(false)}
+                aria-label="Close video"
+              >
+                ×
+              </button>
+
+              <div className="unz-video-modal-title">
                 YOU FOUND A VIDEO EVIDENCE!
                 <br />
                 CHECK IT OUT!
               </div>
 
-              {node.videoUrl ? (
-                <div className="unz-video-box">
-                  <video controls>
-                    <source src={node.videoUrl} />
-                  </video>
-                </div>
-              ) : (
-                <div className="unz-video-box unz-video-box--empty">
-                  No video available for this ending.
-                </div>
-              )}
-            </>
-          ) : (
+              <div className="unz-video-modal-box">
+                <video
+                  controls
+                  autoPlay
+                  playsInline
+                  className="unz-video-modal-player"
+                >
+                  <source src={node.videoUrl} />
+                </video>
+              </div>
+
+              <button
+                type="button"
+                className="unz-explore-button unz-explore-button--modal"
+                onClick={() => setIsVideoOpen(false)}
+              >
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    ) : (
+      <div className="unz-video-box unz-video-box--empty">
+        No video available for this ending.
+      </div>
+    )}
+  </>
+) : (
             <>
               <div className="unz-question-box">
                 {node.content || 'WHAT HAPPENED?'}
@@ -183,8 +226,15 @@ export default function CasePlayer({
       </div>
 
       <div className="unz-phone-footer">
-        <button className="unz-explore-button" type="button">
-          EXPLORE MORE
+        <button
+          className="unz-explore-button"
+          type="button"
+          onClick={() => {
+            if (isVideoOpen) {
+              setIsVideoOpen(false);
+            }
+          }}
+        >
         </button>
       </div>
     </div>

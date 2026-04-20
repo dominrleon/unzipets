@@ -48,11 +48,11 @@ const validation = await validateCaseGraph(id);
             href="/admin"
             className="rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/10"
           >
-            Tornar
+            Back
           </Link>
         </div>
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-2xl font-semibold">Dades del case i del plush</h2>
+            <h2 className="mb-4 text-2xl font-semibold">Plush and case details</h2>
 
             <form action={updateCaseMetaAction} className="space-y-6">
                 <div>
@@ -237,13 +237,13 @@ const validation = await validateCaseGraph(id);
                     type="submit"
                     className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
                 >
-                    Guardar dades generals
+                    Save
                 </button>
                 </div>
             </form>
             </section>
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h2 className="mb-4 text-2xl font-semibold">Crear node</h2>
+          <h2 className="mb-4 text-2xl font-semibold">Create node</h2>
 
           <form action={createNodeAction} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -285,7 +285,7 @@ const validation = await validateCaseGraph(id);
                   name="sortOrder"
                   type="number"
                   className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
-                  placeholder="Si ho deixes buit, va al final"
+                  placeholder="If you leave this empty, it goes to the end"
                 />
               </div>
             </div>
@@ -323,14 +323,14 @@ const validation = await validateCaseGraph(id);
                 type="submit"
                 className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
               >
-                Crear node
+                Create node
               </button>
             </div>
           </form>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h2 className="mb-4 text-2xl font-semibold">Crear resposta</h2>
+          <h2 className="mb-4 text-2xl font-semibold">Create answer</h2>
 
           <form action={createAnswerAction} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -403,7 +403,7 @@ const validation = await validateCaseGraph(id);
                 type="submit"
                 className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/20"
               >
-                Crear resposta
+                Create answer
               </button>
             </div>
           </form>
@@ -423,7 +423,7 @@ const validation = await validateCaseGraph(id);
         </section>
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl font-semibold">Validació del graf</h2>
+                <h2 className="text-2xl font-semibold">Graf validation</h2>
                 <span
                 className={`rounded-full px-3 py-1 text-sm ${
                     validation.isValid
@@ -527,7 +527,7 @@ const validation = await validateCaseGraph(id);
                     type="submit"
                     className="rounded-lg border border-white/10 px-4 py-2 text-sm hover:bg-white/10"
                   >
-                    Guardar canvis
+                    Save
                   </button>
                 </form>
                 <form action={deleteNodeAction} className="mt-3">
@@ -600,7 +600,7 @@ const validation = await validateCaseGraph(id);
         type="submit"
         className="rounded-lg border border-white/10 px-3 py-2 text-xs hover:bg-white/10"
       >
-        Guardar resposta
+        Save
       </button>
     </form>
 
@@ -610,14 +610,14 @@ const validation = await validateCaseGraph(id);
         type="submit"
         className="rounded-lg border border-red-500/30 px-3 py-2 text-xs text-red-300 hover:bg-red-500/10"
       >
-        Eliminar resposta
+        Remove answer
       </button>
     </form>
   </div>
 ))}
   </div>
 ) : (
-  <p className="mt-4 text-sm text-zinc-500">Este node no té respostes.</p>
+  <p className="mt-4 text-sm text-zinc-500">This node does not have answers yet.</p>
 )}
               </article>
             ))}
