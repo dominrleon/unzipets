@@ -20,24 +20,24 @@ export default async function CasePage({ params }: Params) {
   }
 
   return (
-    <main className="unz-case-page">
-      <div className="unz-case-overlay" />
-      <div className="unz-case-shell">
-        <CasePlayer
-          slug={data.slug}
-          initialNode={data.node}
-          plush={data.plush}
-          caseMeta={{
-            title: data.title,
-            fileNumber: data.fileNumber,
-            caseDate: data.caseDate,
-            deathDate: data.deathDate,
-            deathPlace: data.deathPlace,
-            causeOfDeath: data.causeOfDeath,
-            investigationText: data.investigationText,
-          }}
-        />
-      </div>
-    </main>
-  );
+  <main className="unz-case-page">
+    <div className="unz-case-overlay" />
+    <div className="unz-case-shell">
+      <CasePlayer
+        slug={data.slug}
+        initialNode={data.node}
+        plush={data.plush}
+        caseMeta={{
+          title: data.title,
+          fileNumber: data.fileNumber,
+          caseDate: data.caseDate,
+          deathDate: data.deathDate,
+          deathPlace: data.deathPlace,
+          causeOfDeath: data.causeOfDeath,
+          investigationText: data.investigationText,
+        }}
+      />
+    </div>
+  </main>
+);
 }

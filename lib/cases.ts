@@ -1,6 +1,17 @@
 import { prisma } from '@/lib/prisma';
 import { serializeNode } from '@/lib/serializers';
 
+function formatDisplayDate(value: Date | string | null) {
+  if (!value) return null;
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return typeof value === 'string' ? value : null;
+  }
+
+  return date.toLocaleDateString('en-GB');
+}
 export async function getAdminCaseList() {
   return prisma.case.findMany({
     include: {
@@ -60,12 +71,22 @@ export async function getCasePlayerData(slug: string) {
     slug: foundCase.slug,
     title: foundCase.title,
     fileNumber: foundCase.fileNumber,
-    caseDate: foundCase.caseDate,
-    deathDate: foundCase.deathDate,
+    caseDate: formatDisplayDate(foundCase.caseDate),
+    deathDate: formatDisplayDate(foundCase.deathDate),
     deathPlace: foundCase.deathPlace,
     causeOfDeath: foundCase.causeOfDeath,
     investigationText: foundCase.investigationText,
-    plush: foundCase.plush,
+    plush: {
+      id: foundCase.plush.id,
+      name: foundCase.plush.name,
+      slug: foundCase.plush.slug,
+      imageUrl: foundCase.plush.imageUrl,
+      age: foundCase.plush.age,
+      birthDate: formatDisplayDate(foundCase.plush.birthDate),
+      race: foundCase.plush.race,
+      origin: foundCase.plush.origin,
+      identificationNumber: foundCase.plush.identificationNumber,
+    },
     node: serializeNode(foundCase.startNode),
   };
 }

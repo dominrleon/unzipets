@@ -1,38 +1,77 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main className="page">
-      <div className="container grid">
-        <section className="hero card">
-          <div>
-            <span className="badge">Interactive QR investigations</span>
-            <h1>They are not normal plushies. They are UNZIPETS.</h1>
-            <p className="muted">
-              Landing base for the public website. Each plush has its own QR, its own investigation,
-              and 7 possible endings with video.
-            </p>
-            <div className="actions">
-              <Link href="/case/flash" className="button">
-                Open demo case
-              </Link>
-              <Link href="/admin" className="button secondary">
-                Admin area
-              </Link>
-            </div>
-          </div>
-          <div className="card">
-            <h2>Initial scope</h2>
-            <ul className="muted">
-              <li>8 plushies initially</li>
-              <li>1 QR per plush</li>
-              <li>1 decision tree per case</li>
-              <li>7 possible endings</li>
-              <li>Cloudflare video integration</li>
-            </ul>
-          </div>
-        </section>
-      </div>
+    <main className="unz-landing">
+      <header className="unz-landing-header">
+        <Image
+          src="/unzipets/ui/logo.png"
+          alt="UNZIPETS"
+          width={360}
+          height={140}
+          className="unz-landing-logo"
+          priority
+        />
+      </header>
+
+      <section className="unz-landing-hero">
+        <h1 className="unz-landing-title">
+          THEY&apos;RE NOT NORMAL PLUSHIES.
+        </h1>
+
+        <div className="unz-landing-subtitle">
+          <span>THEY ARE</span>
+
+          <Image
+            src="/unzipets/ui/logo.png"
+            alt="UNZIPETS"
+            width={280}
+            height={110}
+            className="unz-landing-inline-logo"
+          />
+        </div>
+
+        <div className="unz-landing-plushies-wrap">
+          <Image
+            src="/unzipets/landing/Peluches_landing.png"
+            alt="UNZIPETS plushies"
+            width={1400}
+            height={760}
+            className="unz-landing-plushies"
+            priority
+          />
+        </div>
+      </section>
+
+      <section className="unz-landing-socials">
+        <a href="#" className="unz-landing-social">
+          Instagram
+        </a>
+
+        <a href="#" className="unz-landing-social">
+          YouTube
+        </a>
+
+        <a href="#" className="unz-landing-social">
+          TikTok
+        </a>
+      </section>
+
+      <section className="unz-landing-features">
+        <ul>
+          <li>UNIQUE ZIPPER DESIGN</li>
+          <li>SOFT PREMIUM PLUSH</li>
+          <li>COLLECTIBLE CHARACTERS</li>
+          <li>PERFECT FOR GIFTS</li>
+        </ul>
+      </section>
+
+      <footer className="unz-landing-footer">
+        <Link href="/case/flash" className="unz-landing-cta">
+          EXPLORE MORE
+        </Link>
+      </footer>
     </main>
   );
 }
