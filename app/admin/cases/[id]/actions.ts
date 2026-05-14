@@ -1,11 +1,44 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { NodeType } from '@prisma/client';
+import { CaseStatus, NodeType } from '@prisma/client';
+
+function normalizeSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+async function revalidateCasePaths(caseId: string, extraSlug?: string) {
+  revalidatePath('/admin');
+  revalidatePath(`/admin/cases/${caseId}`);
+
+  const caseItem = await prisma.case.findUnique({
+    where: { id: caseId },
+    select: { slug: true },
+  });
+
+  if (caseItem?.slug) {
+    revalidatePath(`/case/${caseItem.slug}`);
+  }
+
+  if (extraSlug && extraSlug !== caseItem?.slug) {
+    revalidatePath(`/case/${extraSlug}`);
+  }
+}
+
+function redirectToCaseEditor(caseId: string) {
+  redirect(`/admin/cases/${caseId}`);
+}
 
 export async function createDecisionNode(caseId: string, formData: FormData) {
-  const internalKey = String(formData.get('internalKey') ?? '').trim();
+  const internalKey = normalizeSlug(String(formData.get('internalKey') ?? ''));
   const title = String(formData.get('title') ?? '').trim();
   const content = String(formData.get('content') ?? '').trim();
   const videoUrlRaw = String(formData.get('videoUrl') ?? '').trim();
@@ -17,7 +50,7 @@ export async function createDecisionNode(caseId: string, formData: FormData) {
     throw new Error('internalKey is required');
   }
 
-  if (!typeRaw || !Object.values(NodeType).includes(typeRaw as NodeType)) {
+  if (!Object.values(NodeType).includes(typeRaw as NodeType)) {
     throw new Error('Invalid node type');
   }
 
@@ -70,9 +103,10 @@ export async function createDecisionNode(caseId: string, formData: FormData) {
     });
   }
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/cases/${caseId}`);
+  await revalidateCasePaths(caseId);
+  redirectToCaseEditor(caseId);
 }
+
 export async function createDecisionAnswer(caseId: string, formData: FormData) {
   const nodeId = String(formData.get('nodeId') ?? '').trim();
   const label = String(formData.get('label') ?? '').trim();
@@ -143,15 +177,15 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
     },
   });
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/cases/${caseId}`);
+  await revalidateCasePaths(caseId);
+  redirectToCaseEditor(caseId);
 }
 
 export async function updateCaseMeta(caseId: string, formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
-  const slug = String(formData.get('slug') ?? '').trim();
-  const language = String(formData.get('language') ?? '').trim();
-  const status = String(formData.get('status') ?? '').trim();
+  const slug = normalizeSlug(String(formData.get('slug') ?? '').trim());
+  const language = String(formData.get('language') ?? '').trim() || 'en';
+  const statusRaw = String(formData.get('status') ?? '').trim();
 
   const fileNumber = String(formData.get('fileNumber') ?? '').trim();
   const caseDate = String(formData.get('caseDate') ?? '').trim();
@@ -161,7 +195,7 @@ export async function updateCaseMeta(caseId: string, formData: FormData) {
   const investigationText = String(formData.get('investigationText') ?? '').trim();
 
   const plushName = String(formData.get('plushName') ?? '').trim();
-  const plushSlug = String(formData.get('plushSlug') ?? '').trim();
+  const plushSlug = normalizeSlug(String(formData.get('plushSlug') ?? '').trim());
   const imageUrl = String(formData.get('imageUrl') ?? '').trim();
   const ageRaw = String(formData.get('age') ?? '').trim();
   const birthDate = String(formData.get('birthDate') ?? '').trim();
@@ -183,6 +217,10 @@ export async function updateCaseMeta(caseId: string, formData: FormData) {
 
   if (!plushSlug) {
     throw new Error('Plush slug is required');
+  }
+
+  if (!Object.values(CaseStatus).includes(statusRaw as CaseStatus)) {
+    throw new Error('Invalid case status');
   }
 
   let age: number | null = null;
@@ -207,8 +245,8 @@ export async function updateCaseMeta(caseId: string, formData: FormData) {
     data: {
       title,
       slug,
-      language: language || 'en',
-      status: status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
+      language,
+      status: statusRaw as CaseStatus,
       fileNumber: fileNumber || null,
       caseDate: caseDate || null,
       deathDate: deathDate || null,
@@ -230,9 +268,8 @@ export async function updateCaseMeta(caseId: string, formData: FormData) {
     },
   });
 
-  revalidatePath('/admin');
-  revalidatePath(`/admin/cases/${caseId}`);
-  revalidatePath(`/case/${slug}`);
+  await revalidateCasePaths(caseId, caseItem.slug);
+  redirectToCaseEditor(caseId);
 }
 
 export async function updateDecisionNode(caseId: string, formData: FormData) {
@@ -256,6 +293,10 @@ export async function updateDecisionNode(caseId: string, formData: FormData) {
     throw new Error('Node not found');
   }
 
+  if (!Object.values(NodeType).includes(typeRaw as NodeType)) {
+    throw new Error('Invalid node type');
+  }
+
   let sortOrder = node.sortOrder;
 
   if (sortOrderRaw) {
@@ -272,7 +313,7 @@ export async function updateDecisionNode(caseId: string, formData: FormData) {
       title: title || null,
       content: content || null,
       videoUrl: videoUrlRaw || null,
-      type: typeRaw as any,
+      type: typeRaw as NodeType,
       sortOrder,
     },
   });
@@ -286,8 +327,10 @@ export async function updateDecisionNode(caseId: string, formData: FormData) {
     });
   }
 
-  revalidatePath(`/admin/cases/${caseId}`);
+  await revalidateCasePaths(caseId);
+  redirectToCaseEditor(caseId);
 }
+
 export async function updateDecisionAnswer(caseId: string, formData: FormData) {
   const answerId = String(formData.get('answerId') ?? '').trim();
   const label = String(formData.get('label') ?? '').trim();
@@ -352,8 +395,10 @@ export async function updateDecisionAnswer(caseId: string, formData: FormData) {
     },
   });
 
-  revalidatePath(`/admin/cases/${caseId}`);
+  await revalidateCasePaths(caseId);
+  redirectToCaseEditor(caseId);
 }
+
 export async function deleteDecisionAnswer(caseId: string, formData: FormData) {
   const answerId = String(formData.get('answerId') ?? '').trim();
 
@@ -380,8 +425,10 @@ export async function deleteDecisionAnswer(caseId: string, formData: FormData) {
     },
   });
 
-  revalidatePath(`/admin/cases/${caseId}`);
+  await revalidateCasePaths(caseId);
+  redirectToCaseEditor(caseId);
 }
+
 export async function deleteDecisionNode(caseId: string, formData: FormData) {
   const nodeId = String(formData.get('nodeId') ?? '').trim();
 
@@ -439,5 +486,6 @@ export async function deleteDecisionNode(caseId: string, formData: FormData) {
     },
   });
 
-  revalidatePath(`/admin/cases/${caseId}`);
+  await revalidateCasePaths(caseId);
+  redirectToCaseEditor(caseId);
 }
