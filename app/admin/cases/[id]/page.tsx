@@ -296,7 +296,7 @@ const validation = await validateCaseGraph(id);
                 name="content"
                 rows={5}
                 className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
-                placeholder="Text del node"
+                placeholder="Node text"
               />
             </div>
 
@@ -315,7 +315,7 @@ const validation = await validateCaseGraph(id);
                 name="setAsStartNode"
                 className="h-4 w-4 rounded border-white/20 bg-black/20"
               />
-              Marcar este node com a start node
+              Set this node as the start node
             </label>
 
             <div>
@@ -335,7 +335,7 @@ const validation = await validateCaseGraph(id);
           <form action={createAnswerAction} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">Node pregunta</label>
+                <label className="mb-1 block text-sm text-zinc-300">Question node</label>
                 <select
                   name="nodeId"
                   required
@@ -343,7 +343,7 @@ const validation = await validateCaseGraph(id);
                   defaultValue=""
                 >
                   <option value="" disabled>
-                    Selecciona un node QUESTION
+                    Select a QUESTION node
                   </option>
                   {caseItem.nodes
                     .filter((node) => node.type === 'QUESTION')
@@ -357,7 +357,7 @@ const validation = await validateCaseGraph(id);
               </div>
 
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">Node següent</label>
+                <label className="mb-1 block text-sm text-zinc-300">Next node</label>
                 <select
                   name="nextNodeId"
                   required
@@ -365,7 +365,7 @@ const validation = await validateCaseGraph(id);
                   defaultValue=""
                 >
                   <option value="" disabled>
-                    Selecciona el node destí
+                    Select the target node
                   </option>
                   {caseItem.nodes.map((node) => (
                     <option key={node.id} value={node.id}>
@@ -378,12 +378,12 @@ const validation = await validateCaseGraph(id);
               </div>
 
               <div>
-                <label className="mb-1 block text-sm text-zinc-300">Text de la resposta</label>
+                <label className="mb-1 block text-sm text-zinc-300">Answer text</label>
                 <input
                   name="label"
                   required
                   className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
-                  placeholder="Sí, continuar"
+                  placeholder="Yes, continue"
                 />
               </div>
 
@@ -393,7 +393,7 @@ const validation = await validateCaseGraph(id);
                   name="sortOrder"
                   type="number"
                   className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none"
-                  placeholder="Si ho deixes buit, va al final"
+                  placeholder="Leave it empty to place it at the end"
                 />
               </div>
             </div>
@@ -423,7 +423,7 @@ const validation = await validateCaseGraph(id);
         </section>
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl font-semibold">Graf validation</h2>
+                <h2 className="text-2xl font-semibold">Graph validation</h2>
                 <span
                 className={`rounded-full px-3 py-1 text-sm ${
                     validation.isValid
@@ -431,15 +431,15 @@ const validation = await validateCaseGraph(id);
                     : 'border border-yellow-500/30 text-yellow-300'
                 }`}
                 >
-                {validation.isValid ? 'Vàlid' : 'Amb incidències'}
+                {validation.isValid ? 'Valid' : 'With issues'}
                 </span>
             </div>
 
             <div className="mb-4 grid gap-3 text-sm text-zinc-300 md:grid-cols-4">
                 <p><strong>Total nodes:</strong> {validation.stats.totalNodes}</p>
                 <p><strong>Reachables:</strong> {validation.stats.reachableNodes}</p>
-                <p><strong>Orfes:</strong> {validation.stats.orphanNodes}</p>
-                <p><strong>Finals reachables:</strong> {validation.stats.reachableEndings}</p>
+                <p><strong>Orphans:</strong> {validation.stats.orphanNodes}</p>
+                <p><strong>Reachable endings:</strong> {validation.stats.reachableEndings}</p>
             </div>
 
             {validation.issues.length > 0 ? (
@@ -455,7 +455,7 @@ const validation = await validateCaseGraph(id);
                 </div>
             ) : (
                 <p className="text-sm text-green-300">
-                El case està ben connectat i no s’han detectat incidències estructurals.
+                The case is correctly connected and no structural issues were detected.
                 </p>
             )}
         </section>
@@ -482,7 +482,7 @@ const validation = await validateCaseGraph(id);
                     name="title"
                     defaultValue={node.title ?? ''}
                     className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
-                    placeholder="Títol"
+                    placeholder="Title"
                   />
 
                   <textarea
@@ -490,7 +490,7 @@ const validation = await validateCaseGraph(id);
                     defaultValue={node.content ?? ''}
                     rows={3}
                     className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white"
-                    placeholder="Contingut"
+                    placeholder="Content"
                   />
 
                   <input
@@ -520,7 +520,7 @@ const validation = await validateCaseGraph(id);
 
                   <label className="flex items-center gap-2 text-sm text-zinc-300">
                     <input type="checkbox" name="setAsStartNode" />
-                    Marcar com start node
+                    Set as start node
                   </label>
 
                   <button
@@ -536,13 +536,13 @@ const validation = await validateCaseGraph(id);
                         type="submit"
                         className="rounded-lg border border-red-500/30 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
                     >
-                        Eliminar node
+                        Delete node
                     </button>
                 </form>
                 {node.answers.length > 0 ? (
   <div className="mt-4 space-y-3">
     <h4 className="text-sm font-semibold uppercase tracking-wide text-zinc-400">
-      Respostes
+      Answers
     </h4>
 
    {node.answers.map((answer) => (
@@ -554,7 +554,7 @@ const validation = await validateCaseGraph(id);
       <input type="hidden" name="answerId" value={answer.id} />
 
       <div>
-        <label className="mb-1 block text-xs text-zinc-400">Text resposta</label>
+        <label className="mb-1 block text-xs text-zinc-400">Answer text</label>
         <input
           name="label"
           defaultValue={answer.label}
@@ -564,7 +564,7 @@ const validation = await validateCaseGraph(id);
 
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-zinc-400">Node destí</label>
+          <label className="mb-1 block text-xs text-zinc-400">Target node</label>
           <select
             name="nextNodeId"
             defaultValue={answer.nextNodeId}
@@ -592,7 +592,7 @@ const validation = await validateCaseGraph(id);
       </div>
 
       <p className="text-xs text-zinc-500">
-        Destí actual: {answer.nextNode.internalKey}
+        Current target: {answer.nextNode.internalKey}
         {answer.nextNode.title ? ` (${answer.nextNode.title})` : ''}
       </p>
 

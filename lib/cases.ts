@@ -155,7 +155,7 @@ export async function validateCaseGraph(caseId: string) {
   });
 
   if (!caseItem) {
-    throw new Error('Case no trobat');
+    throw new Error('Case not found');
   }
 
   const issues: string[] = [];
@@ -163,20 +163,20 @@ export async function validateCaseGraph(caseId: string) {
   const startNodeId = caseItem.startNodeId;
 
   if (!startNodeId) {
-    issues.push('El case no té start node definit.');
+    issues.push('The case does not have a start node defined.');
   } else if (!nodeMap.has(startNodeId)) {
-    issues.push('El start node definit no pertany a este case.');
+    issues.push('The selected start node does not belong to this case.');
   }
 
   for (const node of caseItem.nodes) {
     if (node.type === 'QUESTION' && node.answers.length === 0) {
-      issues.push(`El node QUESTION "${node.internalKey}" no té respostes.`);
+      issues.push(`QUESTION node "${node.internalKey}" does not have answers.`);
     }
 
     for (const answer of node.answers) {
       if (!answer.nextNodeId || !nodeMap.has(answer.nextNodeId)) {
         issues.push(
-          `La resposta "${answer.label}" del node "${node.internalKey}" apunta a un node inexistent.`
+          `The answer "${answer.label}" from node "${node.internalKey}" points to a missing node.`
         );
       }
     }
@@ -206,7 +206,7 @@ export async function validateCaseGraph(caseId: string) {
 
   const orphanNodes = caseItem.nodes.filter((node) => !reachable.has(node.id));
   for (const node of orphanNodes) {
-    issues.push(`El node "${node.internalKey}" no és accessible des del start node.`);
+    issues.push(`Node "${node.internalKey}" is not reachable from the start node.`);
   }
 
   const reachableEndings = caseItem.nodes.filter(
@@ -214,7 +214,7 @@ export async function validateCaseGraph(caseId: string) {
   );
 
   if (startNodeId && reachable.size > 0 && reachableEndings.length === 0) {
-    issues.push('No hi ha cap node ENDING accessible des del start node.');
+    issues.push('There is no ENDING node reachable from the start node.');
   }
 
   return {

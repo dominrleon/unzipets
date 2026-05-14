@@ -14,11 +14,11 @@ export async function createDecisionNode(caseId: string, formData: FormData) {
   const setAsStartNode = formData.get('setAsStartNode') === 'on';
 
   if (!internalKey) {
-    throw new Error('internalKey és obligatori');
+    throw new Error('internalKey is required');
   }
 
   if (!typeRaw || !Object.values(NodeType).includes(typeRaw as NodeType)) {
-    throw new Error('Tipus de node no vàlid');
+    throw new Error('Invalid node type');
   }
 
   const existingNode = await prisma.decisionNode.findFirst({
@@ -29,7 +29,7 @@ export async function createDecisionNode(caseId: string, formData: FormData) {
   });
 
   if (existingNode) {
-    throw new Error('Ja existeix un node amb eixe internalKey en este case');
+    throw new Error('A node with this internalKey already exists in this case');
   }
 
   let sortOrder: number;
@@ -38,7 +38,7 @@ export async function createDecisionNode(caseId: string, formData: FormData) {
     sortOrder = Number(sortOrderRaw);
 
     if (Number.isNaN(sortOrder)) {
-      throw new Error('sortOrder no és vàlid');
+      throw new Error('sortOrder is invalid');
     }
   } else {
     const lastNode = await prisma.decisionNode.findFirst({
@@ -80,15 +80,15 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
   const sortOrderRaw = String(formData.get('sortOrder') ?? '').trim();
 
   if (!nodeId) {
-    throw new Error('nodeId és obligatori');
+    throw new Error('nodeId is required');
   }
 
   if (!label) {
-    throw new Error('El text de la resposta és obligatori');
+    throw new Error('Answer text is required');
   }
 
   if (!nextNodeId) {
-    throw new Error('Has de seleccionar el node següent');
+    throw new Error('You must select the next node');
   }
 
   const ownerNode = await prisma.decisionNode.findFirst({
@@ -99,11 +99,11 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
   });
 
   if (!ownerNode) {
-    throw new Error('El node origen no existeix en este case');
+    throw new Error('The source node does not exist in this case');
   }
 
   if (ownerNode.type !== NodeType.QUESTION) {
-    throw new Error('Només es poden afegir respostes a nodes QUESTION');
+    throw new Error('Answers can only be added to QUESTION nodes');
   }
 
   const nextNode = await prisma.decisionNode.findFirst({
@@ -114,7 +114,7 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
   });
 
   if (!nextNode) {
-    throw new Error('El node destí no existeix en este case');
+    throw new Error('The target node does not exist in this case');
   }
 
   let sortOrder: number;
@@ -123,7 +123,7 @@ export async function createDecisionAnswer(caseId: string, formData: FormData) {
     sortOrder = Number(sortOrderRaw);
 
     if (Number.isNaN(sortOrder)) {
-      throw new Error('sortOrder no és vàlid');
+      throw new Error('sortOrder is invalid');
     }
   } else {
     const lastAnswer = await prisma.decisionAnswer.findFirst({
@@ -170,26 +170,26 @@ export async function updateCaseMeta(caseId: string, formData: FormData) {
   const identificationNumber = String(formData.get('identificationNumber') ?? '').trim();
 
   if (!title) {
-    throw new Error('title és obligatori');
+    throw new Error('title is required');
   }
 
   if (!slug) {
-    throw new Error('slug és obligatori');
+    throw new Error('slug is required');
   }
 
   if (!plushName) {
-    throw new Error('El nom del plush és obligatori');
+    throw new Error('Plush name is required');
   }
 
   if (!plushSlug) {
-    throw new Error('El slug del plush és obligatori');
+    throw new Error('Plush slug is required');
   }
 
   let age: number | null = null;
   if (ageRaw) {
     age = Number(ageRaw);
     if (Number.isNaN(age)) {
-      throw new Error('age no és vàlid');
+      throw new Error('age is invalid');
     }
   }
 
@@ -199,7 +199,7 @@ export async function updateCaseMeta(caseId: string, formData: FormData) {
   });
 
   if (!caseItem) {
-    throw new Error('Case no trobat');
+    throw new Error('Case not found');
   }
 
   await prisma.case.update({
@@ -245,7 +245,7 @@ export async function updateDecisionNode(caseId: string, formData: FormData) {
   const setAsStartNode = formData.get('setAsStartNode') === 'on';
 
   if (!nodeId) {
-    throw new Error('nodeId és obligatori');
+    throw new Error('nodeId is required');
   }
 
   const node = await prisma.decisionNode.findFirst({
@@ -253,7 +253,7 @@ export async function updateDecisionNode(caseId: string, formData: FormData) {
   });
 
   if (!node) {
-    throw new Error('Node no trobat');
+    throw new Error('Node not found');
   }
 
   let sortOrder = node.sortOrder;
@@ -261,7 +261,7 @@ export async function updateDecisionNode(caseId: string, formData: FormData) {
   if (sortOrderRaw) {
     const parsed = Number(sortOrderRaw);
     if (Number.isNaN(parsed)) {
-      throw new Error('sortOrder no vàlid');
+      throw new Error('sortOrder is invalid');
     }
     sortOrder = parsed;
   }
@@ -295,15 +295,15 @@ export async function updateDecisionAnswer(caseId: string, formData: FormData) {
   const sortOrderRaw = String(formData.get('sortOrder') ?? '').trim();
 
   if (!answerId) {
-    throw new Error('answerId és obligatori');
+    throw new Error('answerId is required');
   }
 
   if (!label) {
-    throw new Error('El text de la resposta és obligatori');
+    throw new Error('Answer text is required');
   }
 
   if (!nextNodeId) {
-    throw new Error('Has de seleccionar el node destí');
+    throw new Error('You must select the target node');
   }
 
   const answer = await prisma.decisionAnswer.findFirst({
@@ -319,7 +319,7 @@ export async function updateDecisionAnswer(caseId: string, formData: FormData) {
   });
 
   if (!answer) {
-    throw new Error('Resposta no trobada');
+    throw new Error('Answer not found');
   }
 
   const nextNode = await prisma.decisionNode.findFirst({
@@ -330,7 +330,7 @@ export async function updateDecisionAnswer(caseId: string, formData: FormData) {
   });
 
   if (!nextNode) {
-    throw new Error('El node destí no existeix en este case');
+    throw new Error('The target node does not exist in this case');
   }
 
   let sortOrder = answer.sortOrder;
@@ -338,7 +338,7 @@ export async function updateDecisionAnswer(caseId: string, formData: FormData) {
   if (sortOrderRaw) {
     const parsed = Number(sortOrderRaw);
     if (Number.isNaN(parsed)) {
-      throw new Error('sortOrder no vàlid');
+      throw new Error('sortOrder is invalid');
     }
     sortOrder = parsed;
   }
@@ -358,7 +358,7 @@ export async function deleteDecisionAnswer(caseId: string, formData: FormData) {
   const answerId = String(formData.get('answerId') ?? '').trim();
 
   if (!answerId) {
-    throw new Error('answerId és obligatori');
+    throw new Error('answerId is required');
   }
 
   const answer = await prisma.decisionAnswer.findFirst({
@@ -371,7 +371,7 @@ export async function deleteDecisionAnswer(caseId: string, formData: FormData) {
   });
 
   if (!answer) {
-    throw new Error('Resposta no trobada');
+    throw new Error('Answer not found');
   }
 
   await prisma.decisionAnswer.delete({
@@ -386,7 +386,7 @@ export async function deleteDecisionNode(caseId: string, formData: FormData) {
   const nodeId = String(formData.get('nodeId') ?? '').trim();
 
   if (!nodeId) {
-    throw new Error('nodeId és obligatori');
+    throw new Error('nodeId is required');
   }
 
   const node = await prisma.decisionNode.findFirst({
@@ -405,11 +405,11 @@ export async function deleteDecisionNode(caseId: string, formData: FormData) {
   });
 
   if (!node) {
-    throw new Error('Node no trobat');
+    throw new Error('Node not found');
   }
 
   if (node.case.startNodeId === node.id) {
-    throw new Error('No pots eliminar el start node actual');
+    throw new Error('You cannot delete the current start node');
   }
 
   const incomingLinks = await prisma.decisionAnswer.count({
@@ -422,7 +422,7 @@ export async function deleteDecisionNode(caseId: string, formData: FormData) {
   });
 
   if (incomingLinks > 0) {
-    throw new Error('No pots eliminar este node perquè hi ha respostes que apunten a ell');
+    throw new Error('You cannot delete this node because there are answers pointing to it');
   }
 
   if (node._count.answers > 0) {
