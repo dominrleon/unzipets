@@ -391,22 +391,31 @@ label {
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
+
+  min-height: 82px;
+  padding: 12px 18px;
+
   font-family: var(--unz-font-display);
+  font-size: 1.8rem;
+  line-height: 1.05;
   color: #231400;
   cursor: pointer;
   text-transform: uppercase;
   transition: transform 0.15s ease;
+
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  line-height: 1;
 }
 
-.unz-answer-button {
-  min-height: clamp(64px, 7vw, 96px);
-  padding: 0 18px;
-  font-size: clamp(1.25rem, 1.9vw, 2.35rem);
+
+@media (max-width: 480px) {
+  .unz-answer-button {
+    min-height: 74px;
+    padding: 10px 14px;
+    font-size: 1.45rem;
+  }
 }
 
 .unz-answer-button:hover,
