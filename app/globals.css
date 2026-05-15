@@ -351,6 +351,11 @@ label {
   font-size: clamp(0.78rem, 1vw, 1.08rem);
   line-height: 1.15;
   margin-bottom: clamp(18px, 2vw, 26px);
+  font-weight: 900;
+}
+
+.unz-file-copy strong {
+  font-weight: 900;
 }
 
 .unz-file-copy p {
@@ -392,13 +397,14 @@ label {
   background-position: center;
   background-repeat: no-repeat;
 
-  min-height: 82px;
-  padding: 12px 18px;
+  min-height: 96px;
+  padding: 16px 22px;
 
   font-family: var(--unz-font-display);
-  font-size: 1.8rem;
+  font-size: clamp(1.6rem, 2.4vw, 2.2rem);
   line-height: 1.05;
   color: #231400;
+
   cursor: pointer;
   text-transform: uppercase;
   transition: transform 0.15s ease;
@@ -638,9 +644,9 @@ label {
 
   .unz-answer-button,
   .unz-watch-video-button {
-    min-height: 44px;
-    font-size: clamp(1.05rem, 1.35vw, 1.45rem);
-    padding: 0 16px;
+    min-height: 68px;
+    font-size: clamp(1.2rem, 1.55vw, 1.7rem);
+    padding: 8px 18px;
   }
 
   .unz-ending-title {
@@ -723,9 +729,9 @@ label {
 
   .unz-answer-button,
   .unz-watch-video-button {
-    min-height: 58px;
-    font-size: 1.45rem;
-    padding: 0 12px;
+    min-height: 76px;
+    font-size: 1.55rem;
+    padding: 10px 14px;
   }
 
   .unz-video-modal-title,
@@ -776,8 +782,9 @@ label {
 
   .unz-answer-button,
   .unz-watch-video-button {
-    font-size: 1.2rem;
-    min-height: 54px;
+    font-size: 1.35rem;
+    min-height: 72px;
+    padding: 10px 14px;
   }
 }
 
